@@ -1,0 +1,23 @@
+# The purpose of a .dockerignore file is to specify which files and directories
+# should be ignored and not included in the Docker image build context.
+# This helps to:
+# 1. Reduce the size of the Docker image.
+# 2. Improve the build time by excluding unnecessary files.
+# 3. Enhance security by not copying sensitive files into the image.
+
+
+# Git
+.git
+.gitignore
+
+# Docker
+.docker
+
+# Python
+app/__pycache__/
+app/*/__pycache__/
+app/*/*/__pycache__/
+app/*/*/*/__pycache__/
+.env/
+.venv/
+venv/

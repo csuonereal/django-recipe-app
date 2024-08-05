@@ -1,0 +1,19 @@
+version: "3.9" # Specifies the version of the Docker Compose file format
+
+services:
+  app: # Defines a service named 'app'
+    build:
+      context: . # Specifies the build context, which is the current directory
+      args:
+        - DEV=true # Passes a build argument 'DEV' with the value 'true' to the Docker build process.
+                  # This can be used in the Dockerfile to conditionally install or configure things for a development environment.
+    ports:
+      - "8000:8000" # Maps port 8000 on the host to port 8000 in the container
+    volumes:
+      - ./app:/app # Mounts the ./app directory on the host to the /app directory in the container.
+                   # This allows the code on the host machine to be accessible inside the container.
+                   # Any changes made to the code on the host will be reflected in the container in real-time.
+                   # This is especially useful for development purposes where you need to see changes without rebuilding the image.
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
+                                                     # Using '>' allows the command to be written as a multi-line string in YAML.
