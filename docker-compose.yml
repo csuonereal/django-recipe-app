@@ -17,3 +17,22 @@ services:
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
                                                      # Using '>' allows the command to be written as a multi-line string in YAML.
+    environment:
+      - DB_HOST=db # Because we defined our db within the same docker-compose.yml file, we can refer to it by its service name 'db'.
+      - DB_NAME=recipedb
+      - DB_USER=ulas
+      - DB_PASSWORD=Passw0rd!
+    depends_on:
+      - db # Specifies that the 'app' service depends on the 'db' service. This ensures that the 'db' service is started before the 'app' service.
+  
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data # Mounts the named volume 'dev-db-data' to the /var/lib/postgresql/data directory in the container.
+    environment:
+      - POSTGRES_DB=recipedb
+      - POSTGRES_USER=ulas
+      - POSTGRES_PASSWORD=Passw0rd!
+
+volumes:
+  dev-db-data: # Defines a named volume 'dev-db-data' that will be used to persist the data of the PostgreSQL database container.
