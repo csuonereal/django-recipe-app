@@ -15,7 +15,9 @@ services:
         # Any changes made to the code on the host will be reflected in the container in real-time.
       # This is especially useful for development purposes where you need to see changes without rebuilding the image.
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
+      sh -c "python manage.py wait_for_db && 
+             python manage.py migrate &&
+             python manage.pyrunserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
                                                      # Using '>' allows the command to be written as a multi-line string in YAML.
     environment:
       - DB_HOST=db # Because we defined our db within the same docker-compose.yml file, we can refer to it by its service name 'db'.
