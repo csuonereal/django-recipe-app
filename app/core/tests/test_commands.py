@@ -40,7 +40,7 @@ class CommandTests(SimpleTestCase):
         # Assert that 'check' was called exactly once with the 'default' database configuration.
         # This verifies that the 'wait_for_db' command correctly checked the
         # database availability once.
-        patched_check.assert_called_once_with(database=["default"])
+        patched_check.assert_called_once_with(databases=["default"])
 
         # Detailed Analysis:
         # 1. The method begins by simulating a scenario where the database is available by setting
@@ -77,7 +77,7 @@ class CommandTests(SimpleTestCase):
         self.assertEqual(patched_check.call_count, 6)
 
         # Assert the final call to 'check' was with the 'default' database
-        patched_check.assert_called_with(database=["default"])
+        patched_check.assert_called_with(databases=["default"])
 
         # Note: Even though 'patched_sleep' is not used directly in the code,
         # it is patched to prevent the actual sleep from happening during tests,
