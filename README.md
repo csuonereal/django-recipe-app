@@ -1,6 +1,7 @@
 ### Differences between docker-compose up and docker-compose run
 - **`docker-compose up`**: Used to start and run the entire multi-container application as defined in the docker-compose.yml file.
 - **`docker-compose run`**: Used to run a one-off command on a specified service.
+- **`docker-compose down`**: Used to stop and remove all containers defined in the docker-compose.yml file. 
 
 ### Running Commands with Docker Compose
 
@@ -132,12 +133,35 @@ Explanation:
 
 Linting is the process of running a program that analyzes code for potential errors and style issues. It helps in maintaining code quality and consistency by identifying issues before runtime.
 
-To handle linting, follow these steps:
+To handle linting and automatically fix issues, follow these steps:
 
-1. Install `flake8` package.
-2. Run it through Docker Compose using the following command:
+1. Install `flake8`, `autopep8`, `black`, and `autoflake` packages.
+2. Use Docker Compose to run these tools inside your Docker container.
+
+#### Installation
+
+Make sure to add the following to your `requirements.dev.txt`:
+
+```plaintext
+flake8>=3.9.2,<3.10
+autopep8==1.5.7
+black==24.8.0
+autoflake==1.7.8
+```
+
+Then, run `docker-compose build` to rebuild the Docker image with the new dependencies.
 
 ```sh
+# Remove unused imports and variables
+docker-compose run --rm app sh -c "autoflake --in-place --remove-unused-variables --remove-all-unused-imports -r ."
+
+# Fix errors with autopep8
+docker-compose run --rm app sh -c "autopep8 --in-place --aggressive --aggressive -r ."
+
+# Format code with black
+docker-compose run --rm app sh -c "black ."
+
+# Run flake8 to identify remaining issues
 docker-compose run --rm app sh -c "flake8"
 ```
 
