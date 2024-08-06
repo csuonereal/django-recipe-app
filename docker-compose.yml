@@ -6,14 +6,14 @@ services:
       context: . # Specifies the build context, which is the current directory
       args:
         - DEV=true # Passes a build argument 'DEV' with the value 'true' to the Docker build process.
-                  # This can be used in the Dockerfile to conditionally install or configure things for a development environment.
+        # This can be used in the Dockerfile to conditionally install or configure things for a development environment.
     ports:
       - "8000:8000" # Maps port 8000 on the host to port 8000 in the container
     volumes:
       - ./app:/app # Mounts the ./app directory on the host to the /app directory in the container.
-                   # This allows the code on the host machine to be accessible inside the container.
-                   # Any changes made to the code on the host will be reflected in the container in real-time.
-                   # This is especially useful for development purposes where you need to see changes without rebuilding the image.
+        # This allows the code on the host machine to be accessible inside the container.
+        # Any changes made to the code on the host will be reflected in the container in real-time.
+      # This is especially useful for development purposes where you need to see changes without rebuilding the image.
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
                                                      # Using '>' allows the command to be written as a multi-line string in YAML.
@@ -24,7 +24,10 @@ services:
       - DB_PASSWORD=Passw0rd!
     depends_on:
       - db # Specifies that the 'app' service depends on the 'db' service. This ensures that the 'db' service is started before the 'app' service.
-  
+        # However, this does not guarantee that the 'db' service is ready to accept connections when the 'app' service starts.
+        # This can lead to a race condition where the 'app' service tries to connect to the database before it is ready.
+      #To address this issue I will implement custom command to wait for the database to be ready before starting the Django application.
+
   db:
     image: postgres:13-alpine
     volumes:
