@@ -12,6 +12,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
 class UserManager(BaseUserManager):
     """Manager for users"""
 
+    # functions name should be same like below because they are defined in BaseUserManager and we are overriding them
+    # we override the create_user and create_superuser function to create a user with an email instead of a username
+
     def create_user(self, email, password=None, **extra_fields):
         """Create and return a new user"""
         if not email:
