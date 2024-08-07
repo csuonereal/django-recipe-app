@@ -1,59 +1,83 @@
 ### Differences between docker-compose up and docker-compose run
-- **`docker-compose up`**: Used to start and run the entire multi-container application as defined in the docker-compose.yml file.
+
+- **`docker-compose up`**: Used to start and run the entire multi-container application as defined in the
+  docker-compose.yml file.
 - **`docker-compose run`**: Used to run a one-off command on a specified service.
-- **`docker-compose down`**: Used to stop and remove all containers defined in the docker-compose.yml file. 
+- **`docker-compose down`**: Used to stop and remove all containers defined in the docker-compose.yml file.
 
 ### Running Commands with Docker Compose
 
-The command `docker-compose run --rm app sh -c "django-admin startproject config ."` is used to create a new Django project inside a Docker container and reflect the changes on your local machine.
+The command `docker-compose run --rm app sh -c "django-admin startproject config ."` is used to create a new Django
+project inside a Docker container and reflect the changes on your local machine.
 
 **Explanation:**
-- **`docker-compose run`**: This command runs a one-off command based on a service definition in the `docker-compose.yml` file.
-- **`--rm`**: This option removes the container after the command has been executed, helping to keep the environment clean.
+
+- **`docker-compose run`**: This command runs a one-off command based on a service definition in
+  the `docker-compose.yml` file.
+- **`--rm`**: This option removes the container after the command has been executed, helping to keep the environment
+  clean.
 - **`app`**: This is the name of the service as defined in the `docker-compose.yml` file.
-- **`sh -c "django-admin startproject config ."`**: This part of the command tells Docker to start a shell (`sh`) and run the specified command (`django-admin startproject config .`). This command is used to create a new Django project named `config` in the current directory (`.`).
+- **`sh -c "django-admin startproject config ."`**: This part of the command tells Docker to start a shell (`sh`) and
+  run the specified command (`django-admin startproject config .`). This command is used to create a new Django project
+  named `config` in the current directory (`.`).
 
 **How it Creates a Physical Folder on the Local Machine:**
-- **Volumes in Docker Compose**: The `volumes` section in the `docker-compose.yml` file mounts a directory from the host machine to the container. For example:
+
+- **Volumes in Docker Compose**: The `volumes` section in the `docker-compose.yml` file mounts a directory from the host
+  machine to the container. For example:
   ```yaml
   services:
     app:
       volumes:
         - ./app:/app
 
-
-The command `docker-compose run --rm app sh -c "some command"` is used to run a specific command in a new container based on the `app` service defined in the `docker-compose.yml` file.
+The command `docker-compose run --rm app sh -c "some command"` is used to run a specific command in a new container
+based on the `app` service defined in the `docker-compose.yml` file.
 
 **Explanation:**
-- **`docker-compose run`**: This command runs a one-off command based on a service definition in the `docker-compose.yml` file.
-- **`--rm`**: This option removes the container after the command has been executed, helping to keep the environment clean.
+
+- **`docker-compose run`**: This command runs a one-off command based on a service definition in
+  the `docker-compose.yml` file.
+- **`--rm`**: This option removes the container after the command has been executed, helping to keep the environment
+  clean.
 - **`app`**: This is the name of the service as defined in the `docker-compose.yml` file.
-- **`sh -c "some command"`**: This part of the command tells Docker to start a shell (`sh`) and run the specified command (`some command`). This command overrides the default command specified in the `docker-compose.yml` file for that service.
+- **`sh -c "some command"`**: This part of the command tells Docker to start a shell (`sh`) and run the specified
+  command (`some command`). This command overrides the default command specified in the `docker-compose.yml` file for
+  that service.
 
 **Advantages over Running Locally:**
-- **Environment Consistency**: Ensures that the command is executed in the same environment as the rest of the application, avoiding discrepancies between local and container environments.
-- **Dependency Management**: Runs with the same dependencies and configurations defined in the container, ensuring consistency.
-- **Isolation**: Keeps the command execution isolated from the host machine, preventing potential conflicts with local setups.
+
+- **Environment Consistency**: Ensures that the command is executed in the same environment as the rest of the
+  application, avoiding discrepancies between local and container environments.
+- **Dependency Management**: Runs with the same dependencies and configurations defined in the container, ensuring
+  consistency.
+- **Isolation**: Keeps the command execution isolated from the host machine, preventing potential conflicts with local
+  setups.
 
 **Default Command Execution:**
-- By default, Docker Compose runs the command specified in the `docker-compose.yml` file for each service when you use `docker-compose up`.
-- When you use `docker-compose run --rm app sh -c "some command"`, it overrides the default command defined in the `docker-compose.yml` file with the specified command (`some command` in this case).
+
+- By default, Docker Compose runs the command specified in the `docker-compose.yml` file for each service when you
+  use `docker-compose up`.
+- When you use `docker-compose run --rm app sh -c "some command"`, it overrides the default command defined in
+  the `docker-compose.yml` file with the specified command (`some command` in this case).
 
 For example, if your `docker-compose.yml` has:
+
 ```yaml
 command: >
   sh -c "python manage.py runserver 0.0.0.0:8000"
 ```
 
 ### Some Docker Volume Commands
+
 - **`docker volume ls`**: Lists all volumes on the Docker host.
 - **`docker volume create <volume_name>`**: Creates a new volume with the specified name.
 - **`docker volume inspect <volume_name>`**: Displays detailed information about a specific volume.
 - **`docker volume rm <volume_name>`**: Removes a volume from the Docker host.
 - **`docker volume prune`**: Removes all unused volumes from the Docker host.
-- **`docker volume cp <source_path> <volume_name>:<destination_path>`**: Copies files or directories from the host into a volume.
+- **`docker volume cp <source_path> <volume_name>:<destination_path>`**: Copies files or directories from the host into
+  a volume.
 - **`docker run -v <volume_name>:<container_path>`**: Mounts a volume into a container at the specified path.
-
 
 ### Using Docker Build
 
@@ -64,6 +88,7 @@ docker build .
 ```
 
 Explanation:
+
 - `docker build .` reads the instructions from the Dockerfile in the current directory to create a Docker image.
 - This image can then be run as a container.
 
@@ -76,6 +101,7 @@ docker-compose build
 ```
 
 Explanation:
+
 - `docker-compose build` reads the `docker-compose.yml` file to build images for all defined services.
 - It builds all the images needed for the multi-container application setup.
 - Useful for development workflows where frequent rebuilding is needed.
@@ -90,6 +116,7 @@ docker-compose run --rm app sh -c "python manage.py collectstatic"
 ```
 
 Explanation:
+
 - `docker-compose` runs a Docker Compose command.
 - `run` will start a specific container defined in the config.
 - `--rm` removes the container after execution.
@@ -99,7 +126,9 @@ Explanation:
 
 ### Docker Compose
 
-Docker Compose is a tool for defining and running multi-container Docker applications. It uses a YAML file to configure the application’s services, networks, and volumes. With a single command, you can create and start all the services from your configuration.
+Docker Compose is a tool for defining and running multi-container Docker applications. It uses a YAML file to configure
+the application’s services, networks, and volumes. With a single command, you can create and start all the services from
+your configuration.
 
 Example `docker-compose.yml`:
 
@@ -108,40 +137,45 @@ version: "3.9" # Specifies the version of the Docker Compose file format
 
 services:
   app: # Defines a service named 'app'
-    build: 
+    build:
       context: . # Specifies the build context, which is the current directory
     ports:
       - "8000:8000" # Maps port 8000 on the host to port 8000 in the container
     volumes:
       - ./app:/app # Mounts the ./app directory on the host to the /app directory in the container.
-                   # This allows the code on the host machine to be accessible inside the container.
-                   # Any changes made to the code on the host will be reflected in the container in real-time.
-                   # This is especially useful for development purposes where you need to see changes without rebuilding the image.
+      # This allows the code on the host machine to be accessible inside the container.
+      # Any changes made to the code on the host will be reflected in the container in real-time.
+      # This is especially useful for development purposes where you need to see changes without rebuilding the image.
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
                                                      # Using '>' allows the command to be written as a multi-line string in YAML.
 ```
 
 Explanation:
+
 - `version: "3.9"`: Specifies the version of the Docker Compose file format being used.
 - `services`: Defines the services that make up the application.
 - `app`: Name of the service, commonly named after the main application or service.
 - `build`: Specifies the build instructions for the Docker image.
-  - `context: .`: The build context is set to the current directory, meaning the Dockerfile in the current directory will be used to build the image.
-- `ports`: Maps the container’s internal port to the host’s port, allowing access to the application from outside the container.
-  - `"8000:8000"`: Maps port 8000 on the host to port 8000 in the container.
+    - `context: .`: The build context is set to the current directory, meaning the Dockerfile in the current directory
+      will be used to build the image.
+- `ports`: Maps the container’s internal port to the host’s port, allowing access to the application from outside the
+  container.
+    - `"8000:8000"`: Maps port 8000 on the host to port 8000 in the container.
 - `volumes`: Mounts a directory from the host machine to a directory in the container.
-  - `./app:/app`: Mounts the `./app` directory on the host to the `/app` directory in the container.
-    - This allows the code on the host machine to be accessible inside the container.
-    - Any changes made to the code on the host will be reflected in the container in real-time.
-    - This is especially useful for development purposes where you need to see changes without rebuilding the image.
+    - `./app:/app`: Mounts the `./app` directory on the host to the `/app` directory in the container.
+        - This allows the code on the host machine to be accessible inside the container.
+        - Any changes made to the code on the host will be reflected in the container in real-time.
+        - This is especially useful for development purposes where you need to see changes without rebuilding the image.
 - `command`: Specifies the command to run when the container starts.
-  - `sh -c "python manage.py runserver 0.0.0.0:8000"`: Runs the Django development server, binding it to all available interfaces (0.0.0.0) on port 8000.
-    - Using `>` allows the command to be written as a multi-line string in YAML.
+    - `sh -c "python manage.py runserver 0.0.0.0:8000"`: Runs the Django development server, binding it to all available
+      interfaces (0.0.0.0) on port 8000.
+        - Using `>` allows the command to be written as a multi-line string in YAML.
 
 ### Handling Linting
 
-Linting is the process of running a program that analyzes code for potential errors and style issues. It helps in maintaining code quality and consistency by identifying issues before runtime.
+Linting is the process of running a program that analyzes code for potential errors and style issues. It helps in
+maintaining code quality and consistency by identifying issues before runtime.
 
 To handle linting and automatically fix issues, follow these steps:
 
@@ -176,11 +210,14 @@ docker-compose run --rm app sh -c "flake8"
 ```
 
 Explanation:
-- `docker-compose run --rm app sh -c "flake8"`: This command runs the `flake8` linter inside the Docker container for the `app` service.
+
+- `docker-compose run --rm app sh -c "flake8"`: This command runs the `flake8` linter inside the Docker container for
+  the `app` service.
 - `flake8` checks the code for style guide enforcement and possible errors.
 - The `--rm` flag removes the container after execution, keeping the environment clean.
 
 Example output might include messages like:
+
 ```
 ./recipe/serializers.py:12:1: E302 expected 2 blank lines, found 1
 ./recipe/serializers.py:19:1: E302 expected 2 blank lines, found 0
@@ -190,40 +227,50 @@ Example output might include messages like:
 ### Difference Between Dockerfile and Docker Compose
 
 - **Dockerfile**:
-  - A Dockerfile is a script containing a series of instructions on how to build a Docker image. It defines the base image, dependencies, environment variables, commands, and other configurations required to set up your application.
-  - Use it to create a custom image by running `docker build .`.
+    - A Dockerfile is a script containing a series of instructions on how to build a Docker image. It defines the base
+      image, dependencies, environment variables, commands, and other configurations required to set up your
+      application.
+    - Use it to create a custom image by running `docker build .`.
 
 - **Docker Compose**:
-  - Docker Compose is a tool for defining and managing multi-container Docker applications. It allows you to define services, networks, and volumes in a single YAML file (`docker-compose.yml`) and manage them with simple commands.
-  - Use it to start, stop, and manage multiple Docker containers as a single service by running `docker-compose up` or other Docker Compose commands.
+    - Docker Compose is a tool for defining and managing multi-container Docker applications. It allows you to define
+      services, networks, and volumes in a single YAML file (`docker-compose.yml`) and manage them with simple commands.
+    - Use it to start, stop, and manage multiple Docker containers as a single service by running `docker-compose up` or
+      other Docker Compose commands.
 
-In summary, while a Dockerfile is used to build a single Docker image, Docker Compose is used to manage multiple containers and their interactions in a cohesive manner.
-
-
+In summary, while a Dockerfile is used to build a single Docker image, Docker Compose is used to manage multiple
+containers and their interactions in a cohesive manner.
 
 ### Mocking in Test Cases
 
-Mocking is a technique used in unit testing where the actual implementation of a dependency is replaced with a mock object. This mock object simulates the behavior of the real object in a controlled way.
+Mocking is a technique used in unit testing where the actual implementation of a dependency is replaced with a mock
+object. This mock object simulates the behavior of the real object in a controlled way.
 
 #### Key Advantages of Mocking
 
 1. **Isolation of Unit Tests:**
-   - Mocks allow you to isolate the unit of code you are testing, ensuring that tests are not affected by dependencies or external systems.
+    - Mocks allow you to isolate the unit of code you are testing, ensuring that tests are not affected by dependencies
+      or external systems.
 
 2. **Controlled Behavior:**
-   - You can control the behavior of the mock object to return specific values or throw exceptions, allowing you to test different scenarios and edge cases.
+    - You can control the behavior of the mock object to return specific values or throw exceptions, allowing you to
+      test different scenarios and edge cases.
 
 3. **Improved Test Performance:**
-   - Since mock objects are usually lightweight and faster than real implementations, tests run quicker, improving the overall performance of your test suite.
+    - Since mock objects are usually lightweight and faster than real implementations, tests run quicker, improving the
+      overall performance of your test suite.
 
 4. **Reliability and Consistency:**
-   - Mocking ensures that your tests are reliable and consistent by eliminating the variability caused by external systems, such as databases or web services.
+    - Mocking ensures that your tests are reliable and consistent by eliminating the variability caused by external
+      systems, such as databases or web services.
 
 5. **Simplified Testing of Complex Interactions:**
-   - Mocking makes it easier to test complex interactions between objects by allowing you to set expectations and verify how the unit under test interacts with its dependencies.
+    - Mocking makes it easier to test complex interactions between objects by allowing you to set expectations and
+      verify how the unit under test interacts with its dependencies.
 
 6. **Focus on the Unit Under Test:**
-   - By using mocks, you can focus solely on the functionality of the unit being tested, rather than the behavior of its dependencies.
+    - By using mocks, you can focus solely on the functionality of the unit being tested, rather than the behavior of
+      its dependencies.
 
 #### Example
 
@@ -233,11 +280,13 @@ Here's a simple example using Python's `unittest.mock` module:
 import unittest
 from unittest.mock import MagicMock
 
+
 # The class we want to test
 class Service:
     def get_data(self):
         # Imagine this method fetches data from an external API
         pass
+
 
 # The class that uses the Service class
 class Processor:
@@ -248,6 +297,7 @@ class Processor:
         data = self.service.get_data()
         return f"Processed {data}"
 
+
 # Unit test for Processor class
 class TestProcessor(unittest.TestCase):
     def test_process(self):
@@ -257,12 +307,102 @@ class TestProcessor(unittest.TestCase):
 
         # Inject the mock into the Processor
         processor = Processor(mock_service)
-        
+
         # Test the process method
         result = processor.process()
-        
+
         self.assertEqual(result, "Processed mock data")
+
 
 if __name__ == "__main__":
     unittest.main()
 ```
+
+### drf-spectacular
+
+`drf-spectacular` is a powerful and customizable library for generating OpenAPI 3.0 specifications for Django REST
+Framework (DRF) projects. It aims to provide a straightforward way to generate and maintain comprehensive API
+documentation.
+
+#### Key Features
+
+- **OpenAPI 3.0 Support**: Generates OpenAPI 3.0 specifications, making your API documentation more detailed and
+  standardized.
+- **Customizable**: Highly configurable to suit various needs, including custom schema generation and extensions.
+- **Comprehensive Coverage**: Automatically generates schema for your API endpoints, serializers, and views with minimal
+  configuration.
+- **Integration with DRF**: Seamlessly integrates with Django REST Framework, leveraging its powerful features and
+  conventions.
+- **Code Annotations**: Allows you to use docstrings and decorators to add custom descriptions and examples directly in
+  your code.
+- **UI Integration**: Supports popular API documentation UIs like Swagger UI and ReDoc, providing interactive API
+  documentation for developers.
+
+#### Installation
+
+To install `drf-spectacular`, use pip:
+
+```sh
+pip install drf-spectacular
+```
+
+#### Usage
+
+**Add Schema View**: Add a view to generate and serve the OpenAPI schema.
+
+    ```python
+        from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+    
+        urlpatterns = [
+            ...
+            path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+            path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+        ]
+    ```
+
+**Annotate Your Views**: Use `extend_schema` to add custom descriptions, examples, and other metadata to your views.
+
+    ```python
+    from rest_framework import serializers, viewsets
+    from myapp.models import MyModel
+    from drf_spectacular.utils import extend_schema
+
+    class MyModelSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = MyModel
+            fields = '__all__'
+
+    class MyModelViewSet(viewsets.ModelViewSet):
+        queryset = MyModel.objects.all()
+        serializer_class = MyModelSerializer
+
+        @extend_schema(
+            summary="Retrieve a list of MyModel",
+            description="A detailed description of this endpoint.",
+            responses={200: MyModelSerializer(many=True)},
+        )
+        def list(self, request, *args, **kwargs):
+            return super().list(request, *args, **kwargs)
+    ```
+
+**View the Documentation**: Once you have set up `drf-spectacular` and annotated your views, you can view the
+generated OpenAPI schema and interactive API documentation by navigating to the URLs you defined (`/api/schema/` for
+the raw schema and `/api/docs/` for the Swagger UI).
+
+#### Example
+
+Here's a complete example that integrates `drf-spectacular` into a Django project:
+
+**settings.py**:
+```python
+INSTALLED_APPS = [
+...
+'rest_framework',
+'drf_spectacular',
+]
+
+    REST_FRAMEWORK = {
+        ...
+        'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    }
+    ```
