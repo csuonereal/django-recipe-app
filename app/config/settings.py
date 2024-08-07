@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",
+    "user"
     "rest_framework",  # it is required for the DRF-Spectacular package
     "drf_spectacular",
 ]
