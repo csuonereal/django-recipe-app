@@ -44,7 +44,17 @@ For example, if your `docker-compose.yml` has:
 command: >
   sh -c "python manage.py runserver 0.0.0.0:8000"
 ```
-≈
+
+### Some Docker Volume Commands
+- **`docker volume ls`**: Lists all volumes on the Docker host.
+- **`docker volume create <volume_name>`**: Creates a new volume with the specified name.
+- **`docker volume inspect <volume_name>`**: Displays detailed information about a specific volume.
+- **`docker volume rm <volume_name>`**: Removes a volume from the Docker host.
+- **`docker volume prune`**: Removes all unused volumes from the Docker host.
+- **`docker volume cp <source_path> <volume_name>:<destination_path>`**: Copies files or directories from the host into a volume.
+- **`docker run -v <volume_name>:<container_path>`**: Mounts a volume into a container at the specified path.
+
+
 ### Using Docker Build
 
 To build the Docker image, use the following command:
