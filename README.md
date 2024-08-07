@@ -350,7 +350,7 @@ pip install drf-spectacular
 
 **Add Schema View**: Add a view to generate and serve the OpenAPI schema.
 
-    ```python
+```python
         from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
     
         urlpatterns = [
@@ -358,11 +358,11 @@ pip install drf-spectacular
             path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
             path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
         ]
-    ```
+```
 
 **Annotate Your Views**: Use `extend_schema` to add custom descriptions, examples, and other metadata to your views.
 
-    ```python
+```python
     from rest_framework import serializers, viewsets
     from myapp.models import MyModel
     from drf_spectacular.utils import extend_schema
@@ -383,7 +383,7 @@ pip install drf-spectacular
         )
         def list(self, request, *args, **kwargs):
             return super().list(request, *args, **kwargs)
-    ```
+```
 
 **View the Documentation**: Once you have set up `drf-spectacular` and annotated your views, you can view the
 generated OpenAPI schema and interactive API documentation by navigating to the URLs you defined (`/api/schema/` for
@@ -405,4 +405,4 @@ INSTALLED_APPS = [
         ...
         'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     }
-    ```
+ ```
