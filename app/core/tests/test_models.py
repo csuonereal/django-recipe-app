@@ -1,6 +1,7 @@
 """
 Test cases for models
 """
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
@@ -12,13 +13,10 @@ class ModelTests(TestCase):
         """
         Test creating a new user with an email is successful
         """
-        email = 'test@example.com'
-        password = 'Passw0rd!'
+        email = "test@example.com"
+        password = "Passw0rd!"
         # we should implement custom user model to use email instead of username
-        user = get_user_model().objects.create_user(
-            email=email,
-            password=password
-        )
+        user = get_user_model().objects.create_user(email=email, password=password)
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
@@ -28,10 +26,10 @@ class ModelTests(TestCase):
         Test the email for a new user is normalized
         """
         sample_emails = [
-            ['test1@EXAMPLE.com', 'test1@example.com'],
-            ['Test2@Example.com', 'Test2@example.com'],
-            ['TEST3@EXAMPLE.COM', 'TEST3@example.com'],
-            ['test4@example.com', 'test4@example.com']
+            ["test1@EXAMPLE.com", "test1@example.com"],
+            ["Test2@Example.com", "Test2@example.com"],
+            ["TEST3@EXAMPLE.COM", "TEST3@example.com"],
+            ["test4@example.com", "test4@example.com"],
         ]
         password = "Passw0rd!"
 
@@ -51,8 +49,8 @@ class ModelTests(TestCase):
         """
         Test creating a new superuser
         """
-        email = 'superuser@example.com'
-        password = 'Passw0rd!'
+        email = "superuser@example.com"
+        password = "Passw0rd!"
         user = get_user_model().objects.create_superuser(email, password)
         self.assertTrue(user.is_superuser)  # allows every permission
         self.assertTrue(user.is_staff)  # allows user to login to admin site
