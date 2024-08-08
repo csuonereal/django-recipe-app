@@ -406,3 +406,15 @@ INSTALLED_APPS = [
         'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     }
  ```
+
+### Unit Tests
+- **Scope**: Individual components in isolation.
+- **Purpose**: Verify that each unit works as expected.
+- **Environment**: Isolated, often with mock objects.
+- **Examples**: Testing a single function or method.
+
+### Integration Tests
+- **Scope**: Interactions between multiple components.
+- **Purpose**: Ensure units work together correctly.
+- **Environment**: Multiple components working together.
+- **Examples**: Testing a function that involves database access.
