@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "core",
     "user",
     "rest_framework",  # it is required for the DRF-Spectacular package
+    "rest_framework.authtoken",
     "drf_spectacular",
 ]
 
