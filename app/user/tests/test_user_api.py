@@ -31,7 +31,7 @@ class PublicUserApiTests(TestCase):
         self.regular_user_payload = {
             "name": "Test",
             "email": "test@example.com",
-            "password": "Passw0rd!"
+            "password": "Passw0rd!",
         }
 
     def tearDown(self):
@@ -70,13 +70,13 @@ class PublicUserApiTests(TestCase):
         """Test generates token for valid credentials"""
         create_user(**self.regular_user_payload)
         res = self.client.post(TOKEN_URL, self.regular_user_payload)
-        self.assertIn('token', res.data)
+        self.assertIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_create_token_invalid_credentials(self):
         """Test that token is not created if invalid credentials are given"""
         create_user(**self.regular_user_payload)
-        self.regular_user_payload['password'] = 'wrong'
+        self.regular_user_payload["password"] = "wrong"
         res = self.client.post(TOKEN_URL, self.regular_user_payload)
         self.assertNotIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
@@ -91,7 +91,7 @@ class PublicUserApiTests(TestCase):
         """Test error returned if user not found for given email"""
         res = self.client.post(TOKEN_URL, self.regular_user_payload)
 
-        self.assertNotIn('token', res.data)
+        self.assertNotIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_token_missing_field(self):

@@ -37,13 +37,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AuthTokenSerializer(serializers.Serializer):
     """Serializer for the user authentication object"""
+
     email = serializers.CharField()
     password = serializers.CharField(
-        style={"input_type": "password"},  # Makes the password field in the browsable API a password field
-        trim_whitespace=False  # Allows whitespace in the password
+        style={
+            "input_type": "password"
+        },  # Makes the password field in the browsable API a password field
+        trim_whitespace=False,  # Allows whitespace in the password
     )
 
-    def validate(self, attrs):  # Called when we validate the serializer; overridden to validate authentication
+    def validate(
+        self, attrs
+    ):  # Called when we validate the serializer; overridden to validate authentication
         """
         Validate and authenticate the user.
         This method is called during the validation process to enforce custom validation logic.
@@ -53,9 +58,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
         # Authenticate the user with the provided email and password using Django's authenticate function
         user = authenticate(
-            request=self.context.get("request"),
-            username=email,
-            password=password
+            request=self.context.get("request"), username=email, password=password
         )
 
         if not user:

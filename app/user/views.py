@@ -17,4 +17,6 @@ class CreateTokenView(ObtainAuthToken):
 
     # we override the ObtainAuthToken view to use our custom AuthToken because it uses username field instead of email
     serializer_class = AuthTokenSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES # to make the view browsable
+    renderer_classes = (
+        api_settings.DEFAULT_RENDERER_CLASSES
+    )  # to make the view browsable
