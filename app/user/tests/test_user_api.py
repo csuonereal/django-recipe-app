@@ -10,6 +10,7 @@ from rest_framework.test import APIClient
 
 CREATE_USER_URL = reverse("user:create")  # URL for creating a user
 TOKEN_URL = reverse("user:token")  # URL for obtaining a token
+ME_URL = reverse("user:me")  # URL for getting the user's profile
 
 
 def create_user(**params):  # Function to create a user with given parameters
@@ -40,9 +41,7 @@ class PublicUserApiTests(TestCase):
 
     def test_create_valid_user_success(self):
         """Test creating user with valid payload is successful"""
-        print("Sending payload:", self.regular_user_payload)
         res = self.client.post(CREATE_USER_URL, self.regular_user_payload)
-        print("debug", res.data)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         user = get_user_model().objects.get(**res.data)
         self.assertTrue(user.check_password(self.regular_user_payload["password"]))
@@ -99,4 +98,89 @@ class PublicUserApiTests(TestCase):
         self.regular_user_payload["password"] = ""
         res = self.client.post(TOKEN_URL, self.regular_user_payload)
         self.assertNotIn("token", res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_user_unauthorized(self):
+        """Test that authentication is required for users"""
+        res = self.client.get(ME_URL)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class PrivateUserApiTests(TestCase):
+    """Test API requests that require authentication"""
+
+    def setUp(self):
+        """Set up the client for each test"""
+        self.regular_user_payload = {
+            "name": "Test",
+            "email": "test@example.com",
+            "password": "Passw0rd!",
+        }
+
+        self.user = create_user(
+            email=self.regular_user_payload["email"],
+            password=self.regular_user_payload["password"],
+            name=self.regular_user_payload["name"],
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(
+            user=self.user
+        )  # Force authentication for the client
+        # This will ensure that the client is authenticated for each test, which will allow us to test the authenticated user's profile.
+
+    def tearDown(self):
+        """Clean up any created users after each test"""
+        get_user_model().objects.all().delete()
+
+    def test_retrieve_profile_success(self):
+        """Test retrieving profile for logged in user"""
+        res = self.client.get(ME_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, {"name": self.user.name, "email": self.user.email})
+
+    def test_post_me_not_allowed(self):
+        """Test that POST is not allowed on the me URL"""
+        res = self.client.post(ME_URL, {})
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user_profile(self):
+        """Test updating the user profile for authenticated user"""
+        payload = {"name": "New Name", "password": "NewPassw0rd!"}
+        res = self.client.patch(ME_URL, payload)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.name, payload["name"])
+        self.assertTrue(self.user.check_password(payload["password"]))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_update_user_profile_invalid_password(self):
+        """Test updating the user profile with invalid password"""
+        payload = {"password": "pw"}
+        res = self.client.patch(ME_URL, payload)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.regular_user_payload["password"]))
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_user_profile_blank_password(self):
+        """Test updating the user profile with blank password"""
+        payload = {"password": ""}
+        res = self.client.patch(ME_URL, payload)
+        self.user.refresh_from_db()
+        # we did not check password from self.user.password because the password is hashed and we can't compare it with the plain text password so we used regular_user_payload object
+        self.assertTrue(self.user.check_password(self.regular_user_payload["password"]))
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_user_profile_invalid_email(self):
+        """Test updating the user profile with invalid email"""
+        payload = {"email": "invalid"}
+        res = self.client.patch(ME_URL, payload)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, self.user.email)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_user_profile_blank_email(self):
+        """Test updating the user profile with blank email"""
+        payload = {"email": ""}
+        res = self.client.patch(ME_URL, payload)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, self.user.email)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

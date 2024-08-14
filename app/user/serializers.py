@@ -23,6 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
         """Create a new user with encrypted password and return it"""
         return get_user_model().objects.create_user(**validated_data)
 
+    # if we dont override the update function, the password would be saved in plain text
+    # instance is the model instance that is being updated
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
         password = validated_data.pop("password", None)
