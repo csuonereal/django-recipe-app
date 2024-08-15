@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core",
     "user",
+    "recipe",
     "rest_framework",  # it is required for the DRF-Spectacular package
     "rest_framework.authtoken",
     "drf_spectacular",
