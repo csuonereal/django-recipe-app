@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 from core.models import Recipe
-from recipe.serializers import RecipeSerializer
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 # GET /recipes/ mapped to recipe:recipe-list for listing recipes or creating a new one.
 # POST /recipes/ also mapped to recipe:recipe-list for creating a new recipe.
@@ -19,6 +19,11 @@ from recipe.serializers import RecipeSerializer
 # detail_url = reverse('recipe:recipe-detail', kwargs={'pk': recipe_id})
 # pk is the primary key of the recipe object
 RECIPES_URL = reverse("recipe:recipe-list")
+
+
+def detail_url(recipe_id):
+    """Return recipe detail URL"""
+    return reverse("recipe:recipe-detail", args=[recipe_id])
 
 
 def create_recipe(user, **params):
@@ -102,3 +107,29 @@ class PrivateRecipeApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)  # we only created one recipe for the user
         self.assertEqual(res.data, serializer.data)
+
+    def test_get_recipe_detail(self):
+        """Test viewing a recipe detail"""
+        recipe = create_recipe(user=self.user)
+        url = detail_url(recipe.id)
+        res = self.client.get(url)
+        serializer = RecipeDetailSerializer(recipe)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_recipe(self):
+        """Test creating recipe"""
+        payload = {
+            "title": "Chocolate cheesecake",
+            "time_minutes": 30,
+            "price": Decimal("5.00"),
+            "description": "Sample description",
+            "link": "https://samplelink.com",
+        }
+        res = self.client.post(RECIPES_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data["id"])
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(recipe, key))
+            # self.assertEqual(payload[key], recipe[key])
+            # model instances do not support dictionary-style key access by default.
+        self.assertEqual(recipe.user, self.user)
