@@ -38,7 +38,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.serializer_class
 
 
-class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+# define mixins before generic viewset because we are using mixins in the generic viewset
+class TagViewSet(
+    mixins.DestroyModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """Manage tags in the database"""
 
     serializer_class = serializers.TagSerializer
