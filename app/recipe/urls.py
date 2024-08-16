@@ -11,6 +11,7 @@ router = DefaultRouter()
 # the first argument is the name of the endpoint, the second argument is the viewset that we want to register
 # basically automatically generate the URL patterns for our viewset depending on the actions that we have in our viewset
 router.register("recipes", views.RecipeViewSet)
+router.register("tags", views.TagViewSet)
 
 app_name = "recipe"
 
