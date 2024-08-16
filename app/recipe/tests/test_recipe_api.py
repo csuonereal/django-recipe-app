@@ -178,6 +178,7 @@ class PrivateRecipeApiTests(TestCase):
         payload = {"user": new_user.id}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         recipe.refresh_from_db()
         self.assertEqual(self.user, recipe.user)
         self.assertNotEqual(new_user, recipe.user)
