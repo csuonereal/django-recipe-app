@@ -47,7 +47,7 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
-admin.site.register(
-    models.Recipe
-)  # we dont need to give custom admin class for Recipe model because it aleady has
+# we dont need to give custom admin class for Recipe model because it aleady has
+admin.site.register(models.Recipe)
+admin.site.register(models.Tag)
 admin.site.register(models.User, UserAdmin)

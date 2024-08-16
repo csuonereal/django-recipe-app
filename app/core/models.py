@@ -56,6 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Recipe(models.Model):
     """Recipe object"""
 
+    # one user can have multiple recipes but one recipe can only have one user
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # AUTH_USER_MODEL is the user model that is active in the project
         on_delete=models.CASCADE,
@@ -66,6 +67,19 @@ class Recipe(models.Model):
     time_minutes = models.IntegerField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
     link = models.CharField(max_length=255, blank=True)
+    tags = models.ManyToManyField("Tag")
 
     def __str__(self):
         return self.title
+
+
+class Tag(models.Model):
+    """Tag to be used for a recipe to help in filtering"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )  # CASCADE means if the user is deleted, all the tags associated with that user will also be deleted
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
