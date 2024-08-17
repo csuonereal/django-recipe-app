@@ -1,43 +1,64 @@
-version: "3.9" # Specifies the version of the Docker Compose file format
+# Specifies the version of the Docker Compose file format
+version: "3.9"
 
 services:
-  app: # Defines a service named 'app'
+  # Defines a service named 'app'
+  app:
     build:
       context: . # Specifies the build context, which is the current directory
       args:
-        - DEV=true # Passes a build argument 'DEV' with the value 'true' to the Docker build process.
+        # Passes a build argument 'DEV' with the value 'true' to the Docker build process.
         # This can be used in the Dockerfile to conditionally install or configure things for a development environment.
+        - DEV=true
+
     ports:
-      - "8000:8000" # Maps port 8000 on the host to port 8000 in the container
+      # Maps port 8000 on the host to port 8000 in the container
+      - "8000:8000"
     volumes:
-      - ./app:/app # Mounts the ./app directory on the host to the /app directory in the container.
-        # This allows the code on the host machine to be accessible inside the container.
-        # Any changes made to the code on the host will be reflected in the container in real-time.
-      # This is especially useful for development purposes where you need to see changes without rebuilding the image.
+      # Mounts the local './app' directory to '/app' inside the container for real-time code sync.
+      # This allows for immediate reflection of code changes in the container without rebuilds, enhancing development efficiency.
+      - ./app:/app
+
+      # Attaches a named Docker volume 'dev-static-data' to '/vol/web' inside the container.
+      # This setup ensures data persistence across container restarts and redeployments.
+      # It is essential for maintaining user-uploaded files and static content, providing reliability and data continuity.
+      - dev-static-data:/vol/web
+
+
+
     command: >
       sh -c "python manage.py wait_for_db && 
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000" # Runs the Django development server on all interfaces at port 8000.
                                                      # Using '>' allows the command to be written as a multi-line string in YAML.
     environment:
-      - DB_HOST=db # Because we defined our db within the same docker-compose.yml file, we can refer to it by its service name 'db'.
+      # Because we defined our db within the same docker-compose.yml file, we can refer to it by its service name 'db'.
+      - DB_HOST=db
       - DB_NAME=recipedb
       - DB_USER=ulas
       - DB_PASSWORD=Passw0rd!
     depends_on:
-      - db # Specifies that the 'app' service depends on the 'db' service. This ensures that the 'db' service is started before the 'app' service.
-        # However, this does not guarantee that the 'db' service is ready to accept connections when the 'app' service starts.
-        # This can lead to a race condition where the 'app' service tries to connect to the database before it is ready.
-      #To address this issue I will implement custom command to wait for the database to be ready before starting the Django application.
+      # Specifies that the 'app' service depends on the 'db' service.
+      # This ensures that the 'db' service is started before the 'app' service.
+      # However, this does not guarantee that the 'db' service is ready to accept connections when the 'app' service starts.
+      # This can lead to a race condition where the 'app' service tries to connect to the database before it is ready.
+      # To address this issue I will implement custom command to wait for the database to
+      # be ready before starting the Django application.
+      - db
+
 
   db:
     image: postgres:13-alpine
     volumes:
-      - dev-db-data:/var/lib/postgresql/data # Mounts the named volume 'dev-db-data' to the /var/lib/postgresql/data directory in the container.
+      # Mounts the named volume 'dev-db-data' to the /var/lib/postgresql/data directory in the container.
+      - dev-db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=recipedb
       - POSTGRES_USER=ulas
       - POSTGRES_PASSWORD=Passw0rd!
 
 volumes:
-  dev-db-data: # Defines a named volume 'dev-db-data' that will be used to persist the data of the PostgreSQL database container.
+  # Defines a named volume 'dev-db-data' that will be used to persist the data of the PostgreSQL database container.
+  dev-db-data:
+  # Defines a named volume 'dev-static-data' that will be used to persist the static files of the Django application.
+  dev-static-data:

@@ -46,7 +46,22 @@ RUN python -m venv /py && \
     adduser \
         --disabled-password \
         --no-create-home \
-        django-user
+        django-user && \
+        # 1. Create directories for storing media and static files within the volume '/vol/web'.
+        #    This ensures that these directories exist to hold user-uploaded media and static files served by Django.
+        mkdir -p /vol/web/media && \
+        mkdir -p /vol/web/static && \
+        # 2. Change ownership of the '/vol' directory (and all its subdirectories) to the user 'django-user' and group 'django-user'.
+        #    This is important for permissions, ensuring that the Django application running under 'django-user' can access these directories to read and write files.
+        chown -R django-user:django-user /vol && \
+        # 3. Change permissions of the '/vol' directory recursively to 755.
+        #    This sets the permission to read, write, and execute for the owner, and read and execute for group and others.
+        #    It ensures that the application has the necessary permissions to operate correctly with the volumes while restricting unnecessary write access.
+        chmod -R 755 /vol
+
+
+
+
 
 # 7. Set the PATH environment variable to include the virtual environment's bin directory
 ENV PATH="/py/bin:$PATH"
