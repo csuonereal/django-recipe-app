@@ -90,7 +90,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "/static/"
+STATIC_URL = "/static/static/"
+MEDIA_URL = "/static/media/"
+# The STATIC_ROOT and MEDIA_ROOT are used to store the static and media files in the container
+STATIC_ROOT = "/vol/web/static"
+MEDIA_ROOT = "/vol/web/media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

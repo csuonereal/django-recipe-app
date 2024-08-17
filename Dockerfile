@@ -30,11 +30,13 @@ ARG DEV=false
 #    g. Remove the /tmp directory to clean up unnecessary files
 #    h. Remove build dependencies to reduce image size
 #    i. Add a new user named 'django-user' without password and home directory for running the application
+# jpeg-dev is required for Pillow to work with JPEG files
+# zlib and zlib-dev are required for Pillow to work with PNG files
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
-    apk add --no-cache postgresql-client && \
+    apk add --no-cache postgresql-client jpeg-dev && \
     apk add --no-cache --virtual .tmp-build-deps \
-        build-base postgresql-dev musl-dev && \
+        build-base postgresql-dev musl-dev zlib zlib-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt; \
@@ -44,7 +46,22 @@ RUN python -m venv /py && \
     adduser \
         --disabled-password \
         --no-create-home \
-        django-user
+        django-user && \
+        # 1. Create directories for storing media and static files within the volume '/vol/web'.
+        #    This ensures that these directories exist to hold user-uploaded media and static files served by Django.
+        mkdir -p /vol/web/media && \
+        mkdir -p /vol/web/static && \
+        # 2. Change ownership of the '/vol' directory (and all its subdirectories) to the user 'django-user' and group 'django-user'.
+        #    This is important for permissions, ensuring that the Django application running under 'django-user' can access these directories to read and write files.
+        chown -R django-user:django-user /vol && \
+        # 3. Change permissions of the '/vol' directory recursively to 755.
+        #    This sets the permission to read, write, and execute for the owner, and read and execute for group and others.
+        #    It ensures that the application has the necessary permissions to operate correctly with the volumes while restricting unnecessary write access.
+        chmod -R 755 /vol
+
+
+
+
 
 # 7. Set the PATH environment variable to include the virtual environment's bin directory
 ENV PATH="/py/bin:$PATH"
