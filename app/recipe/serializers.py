@@ -102,7 +102,7 @@ class RecipeDetailSerializer(RecipeSerializer):
     """Serializer for the recipe detail object"""
 
     class Meta(RecipeSerializer.Meta):
-        fields = RecipeSerializer.Meta.fields + ["description"]
+        fields = RecipeSerializer.Meta.fields + ["description", "image"]
 
 
 # we separate the image serializer from the recipe serializer because when we uploading we only need to accept the image
