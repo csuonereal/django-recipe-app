@@ -12,6 +12,7 @@ router = DefaultRouter()
 # basically automatically generate the URL patterns for our viewset depending on the actions that we have in our viewset
 router.register("recipes", views.RecipeViewSet)
 router.register("tags", views.TagViewSet)
+router.register("ingredients", views.IngredientViewSet)
 
 app_name = "recipe"
 

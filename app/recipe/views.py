@@ -5,7 +5,7 @@ Views for the recipe APIs
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from core.models import Recipe, Tag
+from core.models import Recipe, Tag, Ingredient
 from recipe import serializers
 
 
@@ -39,9 +39,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 # define mixins before generic viewset because we are using mixins in the generic viewset
+# we dont want it to be created we want it to be created via the recipe viewset so did not added mixins.CreateModelMixin
 class TagViewSet(
     mixins.DestroyModelMixin,
-    mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
@@ -57,10 +57,6 @@ class TagViewSet(
         """Return tags for the current authenticated user only"""
         return self.queryset.filter(user=self.request.user).order_by("-name")
 
-    def perform_create(self, serializer):
-        """Create a new tag"""
-        serializer.save(user=self.request.user)
-
 
 # Key Points:
 # 1. Use of GenericViewSet and Mixins:
@@ -73,3 +69,21 @@ class TagViewSet(
 #    - This approach also allows for cleaner, more controlled exposure of model operations via the API, enhancing security and adherence to the principle of least privilege.
 
 # 3. By choosing GenericViewSet and combining it with appropriate mixins, you tailor the API's capabilities to match exactly what's needed for the Tag model, avoiding the exposure of unnecessary or unwanted CRUD functionality. This method provides a minimalist and secure approach to API design.
+
+
+class IngredientViewSet(
+    mixins.DestroyModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Manage ingredients in the database"""
+
+    serializer_class = serializers.IngredientSerializer
+    queryset = Ingredient.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        """Return ingredients for the current authenticated user only"""
+        return self.queryset.filter(user=self.request.user).order_by("-name")
