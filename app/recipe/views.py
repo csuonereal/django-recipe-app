@@ -2,6 +2,12 @@
 Views for the recipe APIs
 """
 
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiParameter,
+    OpenApiTypes,
+)
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -11,6 +17,23 @@ from core.models import Recipe, Tag, Ingredient
 from recipe import serializers
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="tags",
+                # actual type of the parameter and later on we convert it to a list of integers
+                type=OpenApiTypes.STR,
+                description="Comma separated list of tag IDs to filter",
+            ),
+            OpenApiParameter(
+                name="ingredients",
+                type=OpenApiTypes.STR,
+                description="Comma separated list of ingredient IDs to filter",
+            ),
+        ]
+    )
+)
 class RecipeViewSet(viewsets.ModelViewSet):
     """Manage recipes in the database"""
 
@@ -20,9 +43,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, qs):
+        """Convert a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
     def get_queryset(self):
         """Return recipes for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by("-id")
+        tags = self.request.query_params.get("tags")
+        ingredients = self.request.query_params.get("ingredients")
+        queryset = self.queryset
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingredient_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredient_ids)
+        # we used distinct because you can get duplicate results if you have multiple
+        # recipes assigned to the same tag or ingredient
+        return queryset.filter(user=self.request.user).order_by("-id").distinct()
 
     # it overrides the perform_create function of the ModelViewSet class
     # to set the user of the recipe to the authenticated user
