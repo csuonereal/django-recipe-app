@@ -112,6 +112,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 # define mixins before generic viewset because we are using mixins in the generic viewset
 # we dont want it to be created we want it to be created via the recipe viewset so did not added mixins.CreateModelMixin
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="assigned_only",
+                type=OpenApiTypes.INT,
+                enum=[0, 1],
+                description="Filter tags by assigned recipes",
+            )
+        ]
+    )
+)
 class BaseRecipeAttrViewSet(
     mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
@@ -125,7 +139,11 @@ class BaseRecipeAttrViewSet(
 
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by("-name")
+        assigned_only = bool(int(self.request.query_params.get("assigned_only", 0)))
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False)
+        return queryset.filter(user=self.request.user).order_by("-name").distinct()
 
 
 class TagViewSet(BaseRecipeAttrViewSet):
@@ -133,10 +151,6 @@ class TagViewSet(BaseRecipeAttrViewSet):
 
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
-
-    def get_queryset(self):
-        """Return tags for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by("-name")
 
 
 class IngredientViewSet(BaseRecipeAttrViewSet):
