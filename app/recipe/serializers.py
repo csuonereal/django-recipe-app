@@ -103,3 +103,28 @@ class RecipeDetailSerializer(RecipeSerializer):
 
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ["description"]
+
+
+# we separate the image serializer from the recipe serializer because when we uploading we only need to accept the image
+# we don't need to accept the other fields part of the recipe objects
+class RecipeImageSerializer(serializers.ModelSerializer):
+    """Serializer for uploading images to recipes"""
+
+    class Meta:
+        model = Recipe
+        fields = [
+            "id",
+            "image",
+        ]
+        read_only_fields = ["id"]
+
+        # The 'extra_kwargs' attribute allows additional settings to be applied to model fields.
+        # Here, it's used to configure the 'image' field:
+        extra_kwargs = {
+            "image": {
+                "required": True  # This setting makes the 'image' field mandatory.
+                # By setting 'required' to True, we enforce that the image must be included in any submission.
+                # This ensures that no upload operation can be performed without an image,
+                # aligning with the primary functionality of this serializer to handle image uploads.
+            }
+        }
