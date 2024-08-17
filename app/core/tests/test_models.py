@@ -2,6 +2,7 @@
 Test cases for models
 """
 
+from unittest.mock import patch
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from decimal import Decimal
@@ -93,3 +94,29 @@ class ModelTests(TestCase):
         user = create_user()
         ingredient = models.Ingredient.objects.create(user=user, name="Cucumber")
         self.assertEqual(str(ingredient), ingredient.name)
+
+    # We use the patch decorator from unittest.mock to replace the uuid.uuid4 method with a mock object.
+    # This is done to control the output of uuid.uuid4 during the test, ensuring it returns a predictable value.
+    @patch("core.models.uuid.uuid4")
+    def test_recipe_file_name_uuid(self, mock_uuid):
+        """
+        Test that image is saved in the correct location
+        """
+        # We define a specific UUID string that we want to return when uuid.uuid4() is called in our test.
+        uuid = "test-uuid"
+
+        # Here we set what the mock object, mock_uuid, should return when it is called.
+        # Instead of generating a new, random UUID, it will return 'test-uuid'.
+        mock_uuid.return_value = uuid
+
+        # Call the function that uses uuid.uuid4(). Because we've patched uuid.uuid4, it will use mock_uuid instead,
+        # which we've configured to return 'test-uuid'.
+        file_path = models.recipe_image_file_path(None, "myimage.jpg")
+
+        # We construct the expected file path string manually using the UUID we provided.
+        exp_path = f"uploads/recipe/{uuid}.jpg"
+
+        # The assertion checks if the function returns the path we expect.
+        # Since mock_uuid makes uuid.uuid4() return 'test-uuid', the file_path should end up being
+        # 'uploads/recipe/test-uuid.jpg', which matches exp_path.
+        self.assertEqual(file_path, exp_path)
