@@ -30,11 +30,13 @@ ARG DEV=false
 #    g. Remove the /tmp directory to clean up unnecessary files
 #    h. Remove build dependencies to reduce image size
 #    i. Add a new user named 'django-user' without password and home directory for running the application
+# jpeg-dev is required for Pillow to work with JPEG files
+# zlib and zlib-dev are required for Pillow to work with PNG files
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
-    apk add --no-cache postgresql-client && \
+    apk add --no-cache postgresql-client jpeg-dev && \
     apk add --no-cache --virtual .tmp-build-deps \
-        build-base postgresql-dev musl-dev && \
+        build-base postgresql-dev musl-dev zlib zlib-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt; \
