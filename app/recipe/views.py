@@ -2,7 +2,9 @@
 Views for the recipe APIs
 """
 
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from core.models import Recipe, Tag, Ingredient
@@ -22,7 +24,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Return recipes for the current authenticated user only"""
         return self.queryset.filter(user=self.request.user).order_by("-id")
 
-    # it overrides the perform_create function of the ModelViewSet class to set the user of the recipe to the authenticated user
+    # it overrides the perform_create function of the ModelViewSet class
+    # to set the user of the recipe to the authenticated user
     def perform_create(self, serializer):
         """Create a new recipe"""
         serializer.save(user=self.request.user)
@@ -32,8 +35,41 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Return appropriate serializer class"""
         if self.action == "list":
             return serializers.RecipeSerializer
+        elif self.action == "upload_image":
+            return serializers.RecipeImageSerializer
 
         return self.serializer_class
+
+    # The @action decorator is used to add custom actions
+    # to standard CRUD operations provided by Django REST Framework's viewsets.
+    @action(methods=["POST"], detail=True, url_path="upload-image")
+    def upload_image(self, request, pk=None):
+        """
+        Custom action to upload an image to a recipe.
+
+        This endpoint is specifically for uploading images associated with a recipe, extending
+        the standard REST actions like list, create, retrieve, update, and delete.
+        """
+        # The 'detail=True' parameter specifies that this action is to be performed on a specific instance,
+        # rather than a whole collection. It therefore requires the recipe's primary key ('pk') to be specified in the URL.
+
+        # 'url_path="upload-image"' determines the URL path that this action will be accessible from.
+        # For instance, if the base URL for the RecipeViewSet is '/recipes/',
+        # this action will be available at '/recipes/{pk}/upload-image/'.
+
+        # Retrieves the recipe instance by its primary key ('pk') using DRF's built-in method `get_object`,
+        # which also checks for permissions and raises a 404 if the object does not exist.
+        recipe = self.get_object()
+
+        # Initializes the serializer instance with the retrieved recipe object and the incoming request data.
+        # This is intended for validating and deserializing input data to the image field.
+        serializer = self.get_serializer(recipe, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # define mixins before generic viewset because we are using mixins in the generic viewset
