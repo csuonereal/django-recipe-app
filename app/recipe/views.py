@@ -13,9 +13,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Manage recipes in the database"""
 
     serializer_class = serializers.RecipeDetailSerializer
-    queryset = (
-        Recipe.objects.all()
-    )  # we want to get all the recipes, queryset represents the objects that we want to manage
+    # we want to get all the recipes, queryset represents the objects that we want to manage
+    queryset = Recipe.objects.all()
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -28,9 +27,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Create a new recipe"""
         serializer.save(user=self.request.user)
 
-    def get_serializer_class(
-        self,
-    ):  # this function is called every time a request is made to the viewset
+    # this function is called every time a request is made to the viewset
+    def get_serializer_class(self):
         """Return appropriate serializer class"""
         if self.action == "list":
             return serializers.RecipeSerializer
@@ -40,22 +38,38 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 # define mixins before generic viewset because we are using mixins in the generic viewset
 # we dont want it to be created we want it to be created via the recipe viewset so did not added mixins.CreateModelMixin
-class TagViewSet(
+class BaseRecipeAttrViewSet(
     mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    """Manage tags in the database"""
+    """Base viewset for user owned recipe attributes"""
 
-    serializer_class = serializers.TagSerializer
-    queryset = Tag.objects.all()
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
+        """Return objects for the current authenticated user only"""
+        return self.queryset.filter(user=self.request.user).order_by("-name")
+
+
+class TagViewSet(BaseRecipeAttrViewSet):
+    """Manage tags in the database"""
+
+    serializer_class = serializers.TagSerializer
+    queryset = Tag.objects.all()
+
+    def get_queryset(self):
         """Return tags for the current authenticated user only"""
         return self.queryset.filter(user=self.request.user).order_by("-name")
+
+
+class IngredientViewSet(BaseRecipeAttrViewSet):
+    """Manage ingredients in the database"""
+
+    serializer_class = serializers.IngredientSerializer
+    queryset = Ingredient.objects.all()
 
 
 # Key Points:
@@ -69,21 +83,3 @@ class TagViewSet(
 #    - This approach also allows for cleaner, more controlled exposure of model operations via the API, enhancing security and adherence to the principle of least privilege.
 
 # 3. By choosing GenericViewSet and combining it with appropriate mixins, you tailor the API's capabilities to match exactly what's needed for the Tag model, avoiding the exposure of unnecessary or unwanted CRUD functionality. This method provides a minimalist and secure approach to API design.
-
-
-class IngredientViewSet(
-    mixins.DestroyModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    """Manage ingredients in the database"""
-
-    serializer_class = serializers.IngredientSerializer
-    queryset = Ingredient.objects.all()
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        """Return ingredients for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by("-name")
