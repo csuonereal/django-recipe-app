@@ -159,6 +159,7 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
 
+
 # Key Points:
 # 1. Use of GenericViewSet and Mixins:
 #    - GenericViewSet alone does not provide any actions. It needs to be combined with mixins to specify which actions are available.
