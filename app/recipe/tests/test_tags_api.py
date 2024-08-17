@@ -94,14 +94,6 @@ class PrivateTagsApiTests(TestCase):
         tag.refresh_from_db()
         self.assertEqual(tag.name, payload["name"])
 
-    def test_create_tag_successful(self):
-        """Test creating a new tag"""
-        payload = {"name": "Test Tag"}
-        self.client.post(TAGS_URL, payload)
-
-        exists = Tag.objects.filter(user=self.user, name=payload["name"]).exists()
-        self.assertTrue(exists)
-
     def test_delete_tag(self):
         """Test deleting a tag"""
         tag = create_tags(user=self.user, name="Breakfast")

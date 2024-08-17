@@ -13,6 +13,11 @@ from recipe.serializers import IngredientSerializer
 INGREDIENTS_URL = reverse("recipe:ingredient-list")
 
 
+def detail_url(ingredient_id):
+    """Return ingredient detail URL"""
+    return reverse("recipe:ingredient-detail", args=[ingredient_id])
+
+
 def create_user(email="user@example.com", password="Passw0rd!"):
     """Create and return a sample user"""
     return get_user_model().objects.create_user(email, password)
@@ -80,3 +85,25 @@ class PrivateIngredientsApiTests(TestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["name"], ingredient.name)
         self.assertEqual(response.data[0]["id"], ingredient.id)
+
+    def test_update_ingredient(self):
+        """Test updating an ingredient"""
+        ingredient = create_ingredient(user=self.user, name="Vinegar")
+        payload = {"name": "Apple Cider Vinegar"}
+        url = detail_url(ingredient.id)
+        self.client.patch(url, payload)
+
+        ingredient.refresh_from_db()
+        self.assertEqual(ingredient.name, payload["name"])
+
+    def test_delete_ingredient(self):
+        """Test deleting an ingredient"""
+        ingredient = create_ingredient(user=self.user, name="Vinegar")
+        url = detail_url(ingredient.id)
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        exists = Ingredient.objects.filter(
+            user=self.user, name=ingredient.name
+        ).exists()
+        self.assertFalse(exists)
