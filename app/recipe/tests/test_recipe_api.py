@@ -244,3 +244,60 @@ class PrivateRecipeApiTests(TestCase):
         for tag in payload["tags"]:
             exists = recipe.tags.filter(name=tag["name"], user=self.user).exists()
             self.assertTrue(exists)
+
+    def test_create_tag_on_update(self):
+        """Test creating a tag on recipe update"""
+        recipe = create_recipe(user=self.user)
+        payload = {
+            "title": "Avocado lime cheesecake",
+            "tags": [{"name": "Vegan"}],
+        }
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # Using .filter() to retrieve tags named "Vegan" for a specific user
+        # This line returns a QuerySet, not a single Tag instance. A QuerySet is like a list of all tags that match the criteria,
+        # which means it could potentially contain multiple tags or no tags at all.
+
+        # Common misunderstandings when using .filter() instead of .get():
+        # 1. A QuerySet is not an actual Tag object but a collection of Tag objects that need to be iterated over or further processed.
+        # 2. You cannot directly use 'new_tag' in contexts that require a single object instance, such as assigning to a ForeignKey field,
+        #    using in a direct comparison, or asserting existence in a test.
+
+        # Example of incorrect usage that may lead to errors:
+        # self.assertIn(new_tag, some_other_queryset)  # This will raise an error because 'new_tag' is a QuerySet, not a single object.
+        # new_tag = Tag.objects.filter(name="Vegan", user=self.user)[0] this would solve the issue but lets use get instead
+        new_tag = Tag.objects.get(name="Vegan", user=self.user)
+        self.assertIn(new_tag, recipe.tags.all())
+
+    def test_update_recipe_assign_tags(self):
+        """Test assigning an existing tag when updating a recipe"""
+        tag_breakfast = Tag.objects.create(user=self.user, name="Breakfast")
+        recipe = create_recipe(user=self.user)
+        recipe.tags.add(tag_breakfast)
+        tag_dessert = Tag.objects.create(user=self.user, name="Dessert")
+        payload = {
+            "tags": [{"name": tag_dessert.name}],
+        }
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        recipe.refresh_from_db()
+        self.assertEqual(recipe.tags.count(), 1)
+        self.assertIn(tag_dessert, recipe.tags.all())
+        self.assertIn(tag_breakfast, Tag.objects.all())
+
+    def test_clear_recipe_tags(self):
+        """Test clearing all tags from a recipe"""
+        tag_breakfast = Tag.objects.create(user=self.user, name="Breakfast")
+        recipe = create_recipe(user=self.user)
+        recipe.tags.add(tag_breakfast)
+        payload = {
+            "tags": [],
+        }
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        recipe.refresh_from_db()
+        self.assertEqual(recipe.tags.count(), 0)
+        self.assertIn(tag_breakfast, Tag.objects.all())
