@@ -266,10 +266,9 @@ class PrivateRecipeApiTests(TestCase):
 
         # Example of incorrect usage that may lead to errors:
         # self.assertIn(new_tag, some_other_queryset)  # This will raise an error because 'new_tag' is a QuerySet, not a single object.
-        #new_tag = Tag.objects.filter(name="Vegan", user=self.user)[0] this would solve the issue but lets use get instead
+        # new_tag = Tag.objects.filter(name="Vegan", user=self.user)[0] this would solve the issue but lets use get instead
         new_tag = Tag.objects.get(name="Vegan", user=self.user)
         self.assertIn(new_tag, recipe.tags.all())
-
 
     def test_update_recipe_assign_tags(self):
         """Test assigning an existing tag when updating a recipe"""
