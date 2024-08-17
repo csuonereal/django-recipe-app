@@ -29,7 +29,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_serializer_class(
-        self,
+            self,
     ):  # this function is called every time a request is made to the viewset
         """Return appropriate serializer class"""
         if self.action == "list":
@@ -60,7 +60,6 @@ class TagViewSet(
     def perform_create(self, serializer):
         """Create a new tag"""
         serializer.save(user=self.request.user)
-
 
 # Key Points:
 # 1. Use of GenericViewSet and Mixins:
