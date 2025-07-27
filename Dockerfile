@@ -1,5 +1,4 @@
 FROM python:3.9-alpine3.13
-LABEL maintainer="londonappdeveloper.com"
 
 # 1. Set an environment variable to ensure Python output is sent straight to the terminal (without buffering).
 #    This means that all print statements and log messages will be immediately visible in the container logs,
